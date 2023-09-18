@@ -1,3 +1,2 @@
-# template-ic
+# DoubleLinkedList
 
-To run the program, type "./bin/main"
