@@ -1,182 +1,197 @@
-#include "ListaDuplamenteEncadeada.h"
+#include "ListaEncadeada.h"
 #include <iostream>
 
-ListaDuplamenteEncadeada::ListaDuplamenteEncadeada()
+ListaEncadeada::ListaEncadeada()
 {
     this->head = nullptr;
     this->tail = nullptr;
     this->size = 0;
 }
 
-void ListaDuplamenteEncadeada::addTail(char letra)
+ListaEncadeada::~ListaEncadeada()
+{
+    Nodo *nodoAtual = this->head;
+    Nodo *nodoAnterior = nullptr;
+    while (nodoAtual != nullptr)
+    {
+        nodoAnterior = nodoAtual;
+        nodoAtual = nodoAtual->getNext();
+        delete nodoAnterior;
+    }
+}
+
+void ListaEncadeada::adicionar(char letra)
 {
     Nodo *novoNodo = new Nodo(letra);
     if (this->head == nullptr)
     {
         this->head = novoNodo;
         this->tail = novoNodo;
-        this->size++;
     }
     else
     {
         this->tail->setNext(novoNodo);
-        novoNodo->setPrev(this->tail);
         this->tail = novoNodo;
         this->size++;
     }
 }
 
-void ListaDuplamenteEncadeada::addHead(char letra)
+void ListaEncadeada::adicionarInicio(char letra)
 {
     Nodo *novoNodo = new Nodo(letra);
     if (this->head == nullptr)
     {
         this->head = novoNodo;
         this->tail = novoNodo;
-        this->size++;
     }
     else
     {
-        this->head->setPrev(novoNodo);
-        novoNodo->setNext(this->head);
+        Nodo *aux = this->head;
         this->head = novoNodo;
+        this->head->setNext(aux);
         this->size++;
     }
 }
 
-void ListaDuplamenteEncadeada::addMiddle(int posicao, char letra)
+void ListaEncadeada::adicionarPosicao(char letra, int posicao)
 {
     Nodo *novoNodo = new Nodo(letra);
     if (this->head == nullptr)
     {
         this->head = novoNodo;
         this->tail = novoNodo;
-        this->size++;
-    }
-    else if (posicao == 0)
-    {
-        addHead(letra);
-    }
-    else if (posicao == this->size)
-    {
-        addTail(letra);
     }
     else
     {
-        Nodo *nodoAux = this->head;
-        for (int i = 0; i < posicao; i++)
+        if (posicao <= 0)
         {
-            nodoAux = nodoAux->getNext();
+            this->adicionarInicio(letra);
         }
-        nodoAux->getPrev()->setNext(novoNodo);
-        novoNodo->setPrev(nodoAux->getPrev());
-        novoNodo->setNext(nodoAux);
-        nodoAux->setPrev(novoNodo);
-        this->size++;
+        else if (posicao >= this->size)
+        {
+            this->adicionar(letra);
+        }
+        else
+        {
+            Nodo *aux = this->head;
+            for (int i = 0; i < posicao - 1; i++)
+            {
+                aux = aux->getNext();
+            }
+            novoNodo->setNext(aux->getNext());
+            aux->setNext(novoNodo);
+            this->size++;
+        }
     }
 }
 
-void ListaDuplamenteEncadeada::removeHead()
+void ListaEncadeada::remover()
 {
     if (this->head == nullptr)
     {
-        return;
-    }
-    else if (this->head == this->tail)
-    {
-        delete this->head;
-        this->head = nullptr;
-        this->tail = nullptr;
-        this->size--;
+        std::cout << "Lista vazia" << std::endl;
     }
     else
     {
-        Nodo *nodoAux = this->head;
-        this->head = this->head->getNext();
-        this->head->setPrev(nullptr);
-        delete nodoAux;
+        Nodo *aux = this->head;
+        while(aux->getNext() != this->tail)
+        {
+            aux = aux->getNext();
+        }
+        aux->setNext(nullptr);
+        this->tail = aux;
+         delete aux;
         this->size--;
     }
 }
 
-void ListaDuplamenteEncadeada::removeTail()
+void ListaEncadeada::removerInicio()
 {
     if (this->head == nullptr)
     {
-        return;
-    }
-    else if (this->head == this->tail)
-    {
-        delete this->head;
-        this->head = nullptr;
-        this->tail = nullptr;
-        this->size--;
+        std::cout << "Lista vazia" << std::endl;
     }
     else
     {
-        Nodo *nodoAux = this->tail;
-        this->tail = this->tail->getPrev();
-        this->tail->setNext(nullptr);
-        delete nodoAux;
+        Nodo *aux = this->head;
+        this->head = aux->getNext();
+        delete aux;
         this->size--;
     }
 }
 
-void ListaDuplamenteEncadeada::removeMiddle(Nodo *nodo)
-{
-    if (this->head == nullptr)
-    {
-        return;
-    }
-    else if (this->head == this->tail)
-    {
-        delete this->head;
-        this->head = nullptr;
-        this->tail = nullptr;
-        this->size--;
-    }
-    else
-    {
-        Nodo *nodoAux = nodo;
-        nodoAux->getPrev()->setNext(nodoAux->getNext());
-        nodoAux->getNext()->setPrev(nodoAux->getPrev());
-        delete nodoAux;
-        this->size--;
+void ListaEncadeada::removerPosicao(int posicao){
+    if(this->head == nullptr){
+        std::cout << "Lista vazia" << std::endl;
+    } else {
+        if(posicao <= 0){
+            this->removerInicio();
+        } else if(posicao >= this->size){
+            this->remover();
+        } else {
+            Nodo *aux = this->head;
+            for(int i = 0; i < posicao - 1; i++){
+                aux = aux->getNext();
+            }
+            Nodo *aux2 = aux->getNext();
+            aux->setNext(aux2->getNext());
+            delete aux2;
+            this->size--;
+        }
     }
 }
 
-void ListaDuplamenteEncadeada::print()
+bool ListaEncadeada::listaVazia()
 {
-    Nodo *nodoAux = this->head;
-    while (nodoAux != nullptr)
-    {
-        std::cout << nodoAux->getLetra() << " ";
-        nodoAux = nodoAux->getNext();
-    }
-    std::cout << std::endl;
-}
-
-bool ListaDuplamenteEncadeada::isEmpty()
-{
-    if(getSize() == 0){
+    if(size == 0){
         return true;
-    }
-    else{
+    } else {
         return false;
     }
 }
 
-int ListaDuplamenteEncadeada::getSize()
+int ListaEncadeada::encontrarPosicao(char letra)
 {
-    return this->size;
+    if (this->head == nullptr)
+    {
+        std::cout << "Lista vazia" << std::endl;
+        return -1;
+    }
+    else
+    {
+        Nodo *aux = this->head;
+        int posicao = 0;
+        while (aux != nullptr)
+        {
+            if (aux->getLetra() == letra)
+            {
+                return posicao;
+            }
+            aux = aux->getNext();
+            posicao++;
+        }
+        return -1;
+    }
 }
 
-char ListaDuplamenteEncadeada::getHead()
+bool ListaEncadeada::contem(char letra)
 {
-    return this->head->getLetra();
-}
-
-char ListaDuplamenteEncadeada::getTail()
-{
-    return this->tail->getLetra();
+    if (this->head == nullptr)
+    {
+        std::cout << "Lista vazia" << std::endl;
+        return false;
+    }
+    else
+    {
+        Nodo *aux = this->head;
+        while (aux != nullptr)
+        {
+            if (aux->getLetra() == letra)
+            {
+                return true;
+            }
+            aux = aux->getNext();
+        }
+        return false;
+    }
 }
